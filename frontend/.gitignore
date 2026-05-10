@@ -1,0 +1,18 @@
+# Zavisnosti
+node_modules/
+
+# Build
+build/
+
+# Osetljivi podaci
+.env
+.env.local
+.env.production
+
+# OS fajlovi
+.DS_Store
+Thumbs.db
+
+# Editor fajlovi
+.vscode/
+.idea/

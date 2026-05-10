@@ -1,0 +1,21 @@
+# Build fajlovi
+target/
+build/
+dist/
+
+# NetBeans fajlovi
+nbproject/private/
+nbproject/Makefile-*.mk
+nbproject/Package-*.bash
+build.xml
+nbbuild/
+nbdist/
+.nb-gradle/
+
+# Java kompajlirani fajlovi
+*.class
+*.jar
+*.war
+
+# Osetljivi podaci
+src/main/resources/application.properties
