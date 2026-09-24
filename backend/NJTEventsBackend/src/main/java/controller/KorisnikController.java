@@ -11,10 +11,12 @@ package controller;
 import dto.KorisnikCreateDTO;
 import dto.KorisnikDTO;
 import dto.KorisnikUpdateDTO;
+import dto.PromenaSifreDTO;
 import entities.Korisnik;
 import mapper.KorisnikMapper;
 import service.KorisnikService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
@@ -51,11 +53,20 @@ public class KorisnikController {
     }
 
     // POST /api/korisnici — kreiranje novog korisnika (od strane admina)
+    // Sistem generiše privremenu šifru i šalje je korisniku emailom.
     @PostMapping
     public ResponseEntity<KorisnikDTO> kreirajKorisnika(@Valid @RequestBody KorisnikCreateDTO dto) {
         Korisnik korisnik = KorisnikMapper.toEntityFromCreateDTO(dto);
-        Korisnik sacuvan = korisnikService.sacuvajKorisnika(korisnik);
+        Korisnik sacuvan = korisnikService.kreirajKorisnika(korisnik);
         return ResponseEntity.ok(KorisnikMapper.toDTO(sacuvan));
+    }
+
+    // PUT /api/korisnici/me/sifra — ulogovani korisnik menja sopstvenu šifru
+    @PutMapping("/me/sifra")
+    public ResponseEntity<Void> promeniSifru(@Valid @RequestBody PromenaSifreDTO dto,
+            Authentication authentication) {
+        korisnikService.promeniSifru(authentication.getName(), dto);
+        return ResponseEntity.noContent().build();
     }
 
     // PUT /api/korisnici/{id} — azuriranje korisnika
