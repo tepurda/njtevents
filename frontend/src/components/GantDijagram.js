@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { getSveRezervacije, getSveSale, getSviZahtevi, getMojiZahtevi, obrisiRezervaciju } from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import PromenaSifre from './PromenaSifre';
 
 function vremeUMinute(vreme) {
     const [sati, minuti] = vreme.split(':').map(Number);
@@ -115,6 +116,7 @@ function GantDijagram() {
     };
 
     const handleOdjava = () => { localStorage.clear(); navigate('/login'); };
+    const [prikaziPromenuSifre, setPrikaziPromenuSifre] = useState(false);
 
     const promeniDatum = (smer) => {
         const datum = new Date(selektovanDatum);
@@ -286,6 +288,15 @@ function GantDijagram() {
                                     {mojiZahteviNaCekanju}
                                 </span>
                             )}
+                        </button>
+                    )}
+
+                    {rola === 'ROLE_KORISNIK' && (
+                        <button className="nav-btn nav-btn-ghost" onClick={() => setPrikaziPromenuSifre(true)}>
+                            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                            Promeni šifru
                         </button>
                     )}
 
@@ -579,6 +590,8 @@ function GantDijagram() {
                     </div>
                 </div>
             )}
+
+            {prikaziPromenuSifre && <PromenaSifre onZatvori={() => setPrikaziPromenuSifre(false)}/>}
         </div>
     );
 }

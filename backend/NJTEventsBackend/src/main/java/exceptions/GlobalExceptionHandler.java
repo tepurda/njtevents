@@ -1,6 +1,7 @@
 package config;
 
 import exceptions.ConflictException;
+import exceptions.EmailSendException;
 import exceptions.ResourceNotFoundException;
 import exceptions.ValidationException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -84,6 +85,15 @@ public class GlobalExceptionHandler {
         Map<String, String> response = new HashMap<>();
         response.put("message", "Operacija nije moguća zbog postojećih veza u bazi podataka!");
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    // 503 — Slanje emaila nije uspelo (korisnik nije kreiran, transakcija poništena)
+    @ExceptionHandler(EmailSendException.class)
+    public ResponseEntity<Map<String, String>> handleEmailSendException(
+            EmailSendException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
     }
 
     // 400 — Sve ostale greške

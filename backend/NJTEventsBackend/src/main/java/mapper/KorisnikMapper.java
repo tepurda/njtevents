@@ -46,7 +46,7 @@ public class KorisnikMapper {
         korisnik.setIme(dto.getIme());
         korisnik.setPrezime(dto.getPrezime());
         korisnik.setEmail(dto.getEmail());
-        korisnik.setSifra(dto.getSifra());
+        // Šifru generiše KorisnikService (privremena šifra se šalje emailom)
         return korisnik;
     }
 

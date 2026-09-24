@@ -95,7 +95,7 @@ function AdminPanel() {
     const [izmeniSalu, setIzmeniSalu] = useState(null);
     const [tipSaleForma, setTipSaleForma] = useState({ nazivTipa: '', kapacitet: '' });
     const [izmeniTipSale, setIzmeniTipSale] = useState(null);
-    const [noviKorisnik, setNoviKorisnik] = useState({ ime: '', prezime: '', email: '', sifra: '' });
+    const [noviKorisnik, setNoviKorisnik] = useState({ ime: '', prezime: '', email: '' });
     const [izmeniKorisnika, setIzmeniKorisnika] = useState(null);
     const [izmenaKorisnikForma, setIzmenaKorisnikForma] = useState({ ime: '', prezime: '', email: '', sifra: '' });
 
@@ -274,8 +274,8 @@ function AdminPanel() {
         e.preventDefault();
         try {
             await kreirajKorisnika(noviKorisnik);
-            prikaziUspeh('Korisnik uspešno kreiran!');
-            setNoviKorisnik({ ime: '', prezime: '', email: '', sifra: '' });
+            prikaziUspeh(`Korisnik kreiran! Privremena šifra je poslata na ${noviKorisnik.email}.`);
+            setNoviKorisnik({ ime: '', prezime: '', email: '' });
             ucitajPodatke();
         } catch (error) { prikaziGresku(error.response?.data?.message || 'Greška pri kreiranju korisnika!'); }
     };
@@ -715,7 +715,6 @@ function AdminPanel() {
                                             { placeholder: 'Ime', value: noviKorisnik.ime, key: 'ime' },
                                             { placeholder: 'Prezime', value: noviKorisnik.prezime, key: 'prezime' },
                                             { placeholder: 'Email', value: noviKorisnik.email, key: 'email', type: 'email' },
-                                            { placeholder: 'Šifra', value: noviKorisnik.sifra, key: 'sifra', type: 'password' },
                                         ].map(field => (
                                             <input key={field.key} type={field.type || 'text'}
                                                 className="input-field" placeholder={field.placeholder}

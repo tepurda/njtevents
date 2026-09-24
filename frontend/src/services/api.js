@@ -40,6 +40,8 @@ export const getSviKorisnici = () => api.get('/korisnici');
 export const kreirajKorisnika = (data) => api.post('/korisnici', data);
 export const obrisiKorisnika = (id) => api.delete(`/korisnici/${id}`);
 export const azurirajKorisnika = (id, data) => api.put(`/korisnici/${id}`, data);
+export const promeniSifru = (staraSifra, novaSifra) =>
+    api.put('/korisnici/me/sifra', { staraSifra, novaSifra });
 
 // SALE
 export const getSveSale = () => api.get('/sale');
