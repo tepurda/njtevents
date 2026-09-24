@@ -8,11 +8,13 @@ package controller;
  *
  * @author pite
  */
+import dto.AdministratorDTO;
 import dto.KorisnikCreateDTO;
 import dto.KorisnikDTO;
 import dto.KorisnikUpdateDTO;
 import dto.PromenaSifreDTO;
 import entities.Korisnik;
+import mapper.AdministratorMapper;
 import mapper.KorisnikMapper;
 import service.KorisnikService;
 import org.springframework.http.ResponseEntity;
@@ -75,6 +77,12 @@ public class KorisnikController {
             @Valid @RequestBody KorisnikUpdateDTO dto) {
         Korisnik azuriran = korisnikService.azurirajKorisnika(id, dto);
         return ResponseEntity.ok(KorisnikMapper.toDTO(azuriran));
+    }
+
+    // POST /api/korisnici/{id}/unapredi — admin unapređuje korisnika u administratora
+    @PostMapping("/{id}/unapredi")
+    public ResponseEntity<AdministratorDTO> unaprediUAdministratora(@PathVariable int id) {
+        return ResponseEntity.ok(AdministratorMapper.toDTO(korisnikService.unaprediUAdministratora(id)));
     }
 
     // DELETE /api/korisnici/{id} — brisanje korisnika

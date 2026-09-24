@@ -28,11 +28,7 @@ public class EmailService {
      * kreiranja korisnika — ako slanje ne uspe, baca EmailSendException i nalog se ne čuva.
      */
     public void posaljiPrivremenuSifru(String email, String ime, String privremenaSifra) {
-        SimpleMailMessage poruka = new SimpleMailMessage();
-        poruka.setFrom(posiljalac);
-        poruka.setTo(email);
-        poruka.setSubject("NJT Events — podaci za prijavu");
-        poruka.setText("""
+        posalji(email, "NJT Events — podaci za prijavu", """
                 Poštovani/a %s,
 
                 Za Vas je kreiran nalog u sistemu NJT Events za rezervaciju sala na FON-u.
@@ -43,15 +39,41 @@ public class EmailService {
                 Preporučujemo da nakon prve prijave promenite šifru (opcija "Promeni šifru").
 
                 NJT Events
-                """.formatted(ime, email, privremenaSifra));
+                """.formatted(ime, email, privremenaSifra),
+                "Slanje emaila sa šifrom nije uspelo. Korisnik nije kreiran — pokušajte ponovo.");
+    }
+
+    /** Šalje jednokratni link za promenu šifre ("Zaboravljena šifra"). */
+    public void posaljiLinkZaReset(String email, String ime, String link, long trajanjeMinuta) {
+        posalji(email, "NJT Events — promena šifre", """
+                Poštovani/a %s,
+
+                Primili smo zahtev za promenu šifre za Vaš nalog u sistemu NJT Events.
+                Novu šifru možete postaviti preko sledećeg linka:
+
+                %s
+
+                Link važi %d minuta i može se iskoristiti samo jednom.
+                Ako niste Vi zatražili promenu šifre, slobodno ignorišite ovaj email — Vaša šifra ostaje ista.
+
+                NJT Events
+                """.formatted(ime, link, trajanjeMinuta),
+                "Slanje emaila nije uspelo. Pokušajte ponovo za nekoliko minuta.");
+    }
+
+    private void posalji(String primalac, String naslov, String tekst, String porukaGreske) {
+        SimpleMailMessage poruka = new SimpleMailMessage();
+        poruka.setFrom(posiljalac);
+        poruka.setTo(primalac);
+        poruka.setSubject(naslov);
+        poruka.setText(tekst);
 
         try {
             mailSender.send(poruka);
-            log.info("Poslata privremena šifra na {}", email);
+            log.info("Poslat email \"{}\" na {}", naslov, primalac);
         } catch (MailException e) {
-            log.error("Slanje emaila na {} nije uspelo", email, e);
-            throw new EmailSendException(
-                    "Slanje emaila sa šifrom nije uspelo. Korisnik nije kreiran — pokušajte ponovo.", e);
+            log.error("Slanje emaila \"{}\" na {} nije uspelo", naslov, primalac, e);
+            throw new EmailSendException(porukaGreske, e);
         }
     }
 }

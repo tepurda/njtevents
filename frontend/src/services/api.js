@@ -19,11 +19,13 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
-// Automatsko izlogovanje kada token istekne
+// Automatsko izlogovanje kada token istekne.
+// Zahtevi ka /auth/* (npr. pogrešna šifra na prijavi) se preskaču — tu 401 nije istekla sesija.
 api.interceptors.response.use(
     response => response,
     error => {
-        if (error.response?.status === 401) {
+        const authZahtev = error.config?.url?.startsWith('/auth/');
+        if (error.response?.status === 401 && !authZahtev) {
             localStorage.clear();
             window.location.href = '/login?istekla=true';
         }
@@ -34,12 +36,17 @@ api.interceptors.response.use(
 // AUTH
 export const login = (email, sifra) =>
     api.post('/auth/login', { email, sifra });
+export const zatraziResetSifre = (email) =>
+    api.post('/auth/zaboravljena-sifra', { email });
+export const resetujSifru = (token, novaSifra) =>
+    api.post('/auth/reset-sifre', { token, novaSifra });
 
 // KORISNICI
 export const getSviKorisnici = () => api.get('/korisnici');
 export const kreirajKorisnika = (data) => api.post('/korisnici', data);
 export const obrisiKorisnika = (id) => api.delete(`/korisnici/${id}`);
 export const azurirajKorisnika = (id, data) => api.put(`/korisnici/${id}`, data);
+export const unaprediKorisnika = (id) => api.post(`/korisnici/${id}/unapredi`);
 export const promeniSifru = (staraSifra, novaSifra) =>
     api.put('/korisnici/me/sifra', { staraSifra, novaSifra });
 
