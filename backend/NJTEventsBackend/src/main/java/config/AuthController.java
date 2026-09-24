@@ -10,13 +10,17 @@ package config;
  */
 
 import config.JwtUtil;
+import dto.ResetSifreDTO;
+import dto.ZaboravljenaSifraDTO;
 import entities.Administrator;
 import entities.Korisnik;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import service.AdministratorService;
 import service.KorisnikService;
+import service.ResetSifreService;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -28,13 +32,16 @@ public class AuthController {
     private final KorisnikService korisnikService;
     private final AdministratorService administratorService;
     private final PasswordEncoder passwordEncoder;
+    private final ResetSifreService resetSifreService;
 
     public AuthController(KorisnikService korisnikService,
                           AdministratorService administratorService,
-                          PasswordEncoder passwordEncoder) {
+                          PasswordEncoder passwordEncoder,
+                          ResetSifreService resetSifreService) {
         this.korisnikService = korisnikService;
         this.administratorService = administratorService;
         this.passwordEncoder = passwordEncoder;
+        this.resetSifreService = resetSifreService;
     }
 
     @PostMapping("/login")
@@ -71,5 +78,21 @@ public class AuthController {
         }
 
         return ResponseEntity.status(401).body("Pogrešan email ili šifra!");
+    }
+
+    // POST /api/auth/zaboravljena-sifra — šalje link za promenu šifre.
+    // Odgovor je uvek isti, bez obzira da li nalog postoji (sprečava otkrivanje registrovanih adresa).
+    @PostMapping("/zaboravljena-sifra")
+    public ResponseEntity<Map<String, String>> zaboravljenaSifra(@Valid @RequestBody ZaboravljenaSifraDTO dto) {
+        resetSifreService.zatraziReset(dto.getEmail());
+        return ResponseEntity.ok(Map.of("message",
+                "Ako nalog sa ovom adresom postoji, poslali smo link za promenu šifre. Proverite email (i spam folder)."));
+    }
+
+    // POST /api/auth/reset-sifre — postavlja novu šifru pomoću tokena iz linka
+    @PostMapping("/reset-sifre")
+    public ResponseEntity<Void> resetSifre(@Valid @RequestBody ResetSifreDTO dto) {
+        resetSifreService.resetujSifru(dto.getToken(), dto.getNovaSifra());
+        return ResponseEntity.noContent().build();
     }
 }

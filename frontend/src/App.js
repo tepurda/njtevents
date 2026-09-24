@@ -5,6 +5,8 @@ import GantDijagram from './components/GantDijagram';
 import RezervacijaForma from './components/RezervacijaForma';
 import AdminPanel from './components/AdminPanel';
 import MojiZahtevi from './components/MojiZahtevi';
+import ZaboravljenaSifra from './components/ZaboravljenaSifra';
+import ResetSifre from './components/ResetSifre';
 
 
 
@@ -19,6 +21,8 @@ function App() {
             <Routes>
                 <Route path="/" element={<Navigate to="/login" />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/zaboravljena-sifra" element={<ZaboravljenaSifra />} />
+                <Route path="/reset-sifre" element={<ResetSifre />} />
                 <Route path="/gant" element={
                     <PrivateRoute>
                         <GantDijagram />

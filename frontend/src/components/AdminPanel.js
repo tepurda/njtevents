@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getSviZahtevi, obradiZahtev, getSviKorisnici, kreirajKorisnika, obrisiKorisnika, azurirajKorisnika, getSveSale, kreirajSalu, azurirajSalu, obrisiSalu, getSviTipoviSale, kreirajTipSale, azurirajTipSale, obrisiTipSale, getSveRezervacije, obrisiRezervaciju } from '../services/api';
+import { getSviZahtevi, obradiZahtev, getSviKorisnici, kreirajKorisnika, obrisiKorisnika, azurirajKorisnika, unaprediKorisnika, getSveSale, kreirajSalu, azurirajSalu, obrisiSalu, getSviTipoviSale, kreirajTipSale, azurirajTipSale, obrisiTipSale, getSveRezervacije, obrisiRezervaciju } from '../services/api';
 
 const formatVreme = (vreme) => {
     if (!vreme) return '';
@@ -302,6 +302,19 @@ function AdminPanel() {
         setIzmenaKorisnikForma({ ime: '', prezime: '', email: '', sifra: '' });
     };
 
+    const handleUnaprediKorisnika = async (korisnik) => {
+        const imePrezime = `${korisnik.ime} ${korisnik.prezime}`;
+        if (window.confirm(`Unaprediti korisnika ${imePrezime} u administratora?\n\n`
+                + 'Korisnički nalog se pretvara u administratorski (ista email adresa i šifra), '
+                + 'a njegove rezervacije prelaze na novi nalog. Ova akcija se ne može poništiti.')) {
+            try {
+                await unaprediKorisnika(korisnik.korisnikID);
+                prikaziUspeh(`${imePrezime} je sada administrator.`);
+                ucitajPodatke();
+            } catch (error) { prikaziGresku(error.response?.data?.message || 'Greška pri unapređivanju korisnika!'); }
+        }
+    };
+
     const handleObrisiKorisnika = async (id) => {
         if (window.confirm('Da li ste sigurni da želite da obrišete korisnika?')) {
             try {
@@ -446,6 +459,8 @@ function AdminPanel() {
                 .btn-odbij:hover { background: rgba(244,114,182,0.2); }
                 .btn-izmeni { background: rgba(251,191,36,0.12); color: #92400E; }
                 .btn-izmeni:hover { background: rgba(251,191,36,0.2); }
+                .btn-unapredi { background: rgba(167,139,250,0.12); color: #5B21B6; }
+                .btn-unapredi:hover { background: rgba(167,139,250,0.2); }
                 .btn-obrisi { background: rgba(244,114,182,0.12); color: #9D174D; }
                 .btn-obrisi:hover { background: rgba(244,114,182,0.2); }
                 .btn-dodaj {
@@ -757,6 +772,7 @@ function AdminPanel() {
                                             <td style={{ padding: '12px 16px' }}>
                                                 <div style={{ display: 'flex', gap: '6px' }}>
                                                     <button className="action-btn btn-izmeni" onClick={() => handlePocniIzmenuKorisnika(korisnik)}>Izmeni</button>
+                                                    <button className="action-btn btn-unapredi" onClick={() => handleUnaprediKorisnika(korisnik)}>Unapredi u admina</button>
                                                     <button className="action-btn btn-obrisi" onClick={() => handleObrisiKorisnika(korisnik.korisnikID)}>Obriši</button>
                                                 </div>
                                             </td>

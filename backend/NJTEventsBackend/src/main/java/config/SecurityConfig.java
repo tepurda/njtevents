@@ -52,6 +52,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/zahtevi/**").hasAuthority("ROLE_ADMINISTRATOR")
                 // Kreiranje korisnika — samo administrator
                 .requestMatchers(HttpMethod.POST, "/api/korisnici").hasAuthority("ROLE_ADMINISTRATOR")
+                .requestMatchers(HttpMethod.POST, "/api/korisnici/*/unapredi").hasAuthority("ROLE_ADMINISTRATOR")
                 .requestMatchers(HttpMethod.DELETE, "/api/korisnici/**").hasAuthority("ROLE_ADMINISTRATOR")
                 // Promena sopstvene šifre — samo korisnik (mora biti pre opšteg PUT /api/korisnici/**)
                 .requestMatchers(HttpMethod.PUT, "/api/korisnici/me/sifra").hasAuthority("ROLE_KORISNIK")

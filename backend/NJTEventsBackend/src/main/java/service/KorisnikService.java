@@ -2,11 +2,15 @@ package service;
 
 import dto.KorisnikUpdateDTO;
 import dto.PromenaSifreDTO;
+import entities.Administrator;
 import entities.Korisnik;
+import entities.Rezervacija;
+import entities.StatusZahteva;
 import exceptions.ConflictException;
 import exceptions.ResourceNotFoundException;
 import exceptions.ValidationException;
 import java.time.LocalDate;
+import repository.AdministratorRepository;
 import repository.KorisnikRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,17 +27,20 @@ public class KorisnikService {
     private final RezervacijaRepository rezervacijaRepository;
     private final PasswordGenerator passwordGenerator;
     private final EmailService emailService;
+    private final AdministratorRepository administratorRepository;
 
     public KorisnikService(KorisnikRepository korisnikRepository,
             PasswordEncoder passwordEncoder,
             RezervacijaRepository rezervacijaRepository,
             PasswordGenerator passwordGenerator,
-            EmailService emailService) {
+            EmailService emailService,
+            AdministratorRepository administratorRepository) {
         this.korisnikRepository = korisnikRepository;
         this.passwordEncoder = passwordEncoder;
         this.rezervacijaRepository = rezervacijaRepository;
         this.passwordGenerator = passwordGenerator;
         this.emailService = emailService;
+        this.administratorRepository = administratorRepository;
     }
 
     public List<Korisnik> getSviKorisnici() {
@@ -88,6 +95,9 @@ public class KorisnikService {
         if (korisnikRepository.findByEmail(korisnik.getEmail()).isPresent()) {
             throw new ConflictException("Korisnik sa ovim emailom već postoji!");
         }
+        if (administratorRepository.findByEmail(korisnik.getEmail()).isPresent()) {
+            throw new ConflictException("Administrator sa ovim emailom već postoji!");
+        }
         String privremenaSifra = passwordGenerator.generisi();
         korisnik.setSifra(passwordEncoder.encode(privremenaSifra));
         // flush pre slanja emaila — eventualna greška baze (npr. unique email) javlja se pre nego što email ode
@@ -113,6 +123,52 @@ public class KorisnikService {
         }
         korisnik.setSifra(passwordEncoder.encode(dto.getNovaSifra()));
         korisnikRepository.save(korisnik);
+    }
+
+    /**
+     * Unapređuje korisnika u administratora ("premeštanje" — Korisnik i Administrator su odvojene tabele):
+     * 1. pravi se Administrator sa istim imenom, prezimenom, emailom i istim BCrypt hešom šifre
+     *    (osoba se prijavljuje istom šifrom, sada kao admin);
+     * 2. sve rezervacije korisnika prelaze na novi admin nalog (istorija se čuva);
+     * 3. red u tabeli Korisnik se briše.
+     * Odbija se ako korisnik ima zahteve na čekanju — admin ih prvo mora obraditi.
+     */
+    @Transactional
+    public Administrator unaprediUAdministratora(int id) {
+        Korisnik korisnik = korisnikRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Korisnik nije pronađen"));
+
+        if (administratorRepository.findByEmail(korisnik.getEmail()).isPresent()) {
+            throw new ConflictException("Administrator sa ovim emailom već postoji!");
+        }
+
+        List<Rezervacija> rezervacije = korisnik.getRezervacije() != null
+                ? korisnik.getRezervacije() : List.of();
+
+        long naCekanju = rezervacije.stream()
+                .filter(r -> r.getZahtev() != null && r.getZahtev().getStatus() == StatusZahteva.NA_CEKANJU)
+                .count();
+        if (naCekanju > 0) {
+            throw new ValidationException("Korisnik ima " + naCekanju
+                    + (naCekanju == 1 ? " zahtev" : " zahteva")
+                    + " na čekanju. Odobrite ili odbijte ih pre unapređivanja.");
+        }
+
+        Administrator admin = new Administrator();
+        admin.setIme(korisnik.getIme());
+        admin.setPrezime(korisnik.getPrezime());
+        admin.setEmail(korisnik.getEmail());
+        admin.setSifra(korisnik.getSifra()); // već je BCrypt heš — ne enkodirati ponovo
+        Administrator noviAdmin = administratorRepository.save(admin);
+
+        for (Rezervacija r : rezervacije) {
+            r.setKorisnik(null);
+            r.setAdministrator(noviAdmin);
+        }
+        rezervacijaRepository.saveAll(rezervacije);
+
+        korisnikRepository.delete(korisnik);
+        return noviAdmin;
     }
 
     public void obrisiKorisnika(int id) {
