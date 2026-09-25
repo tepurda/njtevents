@@ -196,7 +196,7 @@ function RezervacijaForma() {
                             <rect x="9" y="9" width="5" height="5" rx="1.5" fill="white" opacity="0.9"/>
                         </svg>
                     </div>
-                    <span style={{ color: '#fff', fontWeight: '600', fontSize: '15px' }}>NJT Events</span>
+                    <span style={{ color: '#fff', fontWeight: '600', fontSize: '15px' }}>FONSale</span>
                 </div>
                 <button className="back-btn" onClick={() => navigate('/gant')}>
                     <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">

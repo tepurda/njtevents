@@ -28,27 +28,27 @@ public class EmailService {
      * kreiranja korisnika — ako slanje ne uspe, baca EmailSendException i nalog se ne čuva.
      */
     public void posaljiPrivremenuSifru(String email, String ime, String privremenaSifra) {
-        posalji(email, "NJT Events — podaci za prijavu", """
+        posalji(email, "FONSale — podaci za prijavu", """
                 Poštovani/a %s,
 
-                Za Vas je kreiran nalog u sistemu NJT Events za rezervaciju sala na FON-u.
+                Za Vas je kreiran nalog u sistemu FONSale za rezervaciju sala na FON-u.
 
                 Email: %s
                 Privremena šifra: %s
 
                 Preporučujemo da nakon prve prijave promenite šifru (opcija "Promeni šifru").
 
-                NJT Events
+                FONSale
                 """.formatted(ime, email, privremenaSifra),
                 "Slanje emaila sa šifrom nije uspelo. Korisnik nije kreiran — pokušajte ponovo.");
     }
 
     /** Šalje jednokratni link za promenu šifre ("Zaboravljena šifra"). */
     public void posaljiLinkZaReset(String email, String ime, String link, long trajanjeMinuta) {
-        posalji(email, "NJT Events — promena šifre", """
+        posalji(email, "FONSale — promena šifre", """
                 Poštovani/a %s,
 
-                Primili smo zahtev za promenu šifre za Vaš nalog u sistemu NJT Events.
+                Primili smo zahtev za promenu šifre za Vaš nalog u sistemu FONSale.
                 Novu šifru možete postaviti preko sledećeg linka:
 
                 %s
@@ -56,7 +56,7 @@ public class EmailService {
                 Link važi %d minuta i može se iskoristiti samo jednom.
                 Ako niste Vi zatražili promenu šifre, slobodno ignorišite ovaj email — Vaša šifra ostaje ista.
 
-                NJT Events
+                FONSale
                 """.formatted(ime, link, trajanjeMinuta),
                 "Slanje emaila nije uspelo. Pokušajte ponovo za nekoliko minuta.");
     }

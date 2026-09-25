@@ -14,13 +14,13 @@
     </parent>
 
     <groupId>njt</groupId>
-    <artifactId>NJTEvents</artifactId>
+    <artifactId>FONSale</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
         <java.version>17</java.version>
-        <start-class>application.NJTEventsApplication</start-class>
+        <start-class>application.FONSaleApplication</start-class>
     </properties>
     
     <dependencies>

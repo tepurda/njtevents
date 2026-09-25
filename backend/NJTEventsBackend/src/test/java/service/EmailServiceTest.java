@@ -14,7 +14,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 class EmailServiceTest {
 
     private final JavaMailSender mailSender = mock(JavaMailSender.class);
-    private final EmailService emailService = new EmailService(mailSender, "njtevents@gmail.com");
+    private final EmailService emailService = new EmailService(mailSender, "fonsale@gmail.com");
 
     @Test
     void saljePorukuSaPrivremenomSifrom() {
@@ -22,7 +22,7 @@ class EmailServiceTest {
 
         ArgumentCaptor<SimpleMailMessage> poruka = ArgumentCaptor.forClass(SimpleMailMessage.class);
         verify(mailSender).send(poruka.capture());
-        assertEquals("njtevents@gmail.com", poruka.getValue().getFrom());
+        assertEquals("fonsale@gmail.com", poruka.getValue().getFrom());
         assertArrayEquals(new String[]{"ana@example.com"}, poruka.getValue().getTo());
         assertTrue(poruka.getValue().getText().contains("aX3k#9mQ"));
     }

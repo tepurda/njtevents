@@ -21,7 +21,7 @@ public class JwtUtil {
     
     
     
-    private static final String SECRET_KEY = "NJTEventsSecretKeyKojaJeDovoljnoDugacka123!";
+    private static final String SECRET_KEY = "FONSaleSecretKeyKojaJeDovoljnoDugacka123!";
     private static final long EXPIRATION_TIME = 1000 * 60 * 30; // 30 min
 
     private static final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());

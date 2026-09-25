@@ -12,8 +12,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableJpaRepositories(basePackages = "repository")
 @ComponentScan(basePackages = {"application", "controller", "service", "config", "exceptions"})
 @EnableScheduling
-public class NJTEventsApplication {
+public class FONSaleApplication {
     public static void main(String[] args) {
-        SpringApplication.run(NJTEventsApplication.class, args);
+        SpringApplication.run(FONSaleApplication.class, args);
     }
 }

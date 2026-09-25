@@ -84,7 +84,7 @@ export function AuthLayout({ naslov, podnaslov, children }) {
                 {/* Naslov */}
                 <div style={{ textAlign: 'center', marginBottom: '24px' }}>
                     <h1 style={{ fontSize: '26px', fontWeight: '700', color: '#1E293B', margin: '0 0 4px' }}>
-                        NJT Events
+                        FONSale
                     </h1>
                     <p style={{ fontSize: '14px', color: '#94A3B8', margin: 0 }}>
                         Sistem za rezervaciju sala

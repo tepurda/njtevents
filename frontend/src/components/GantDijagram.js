@@ -249,7 +249,7 @@ function GantDijagram() {
                             <rect x="9" y="9" width="5" height="5" rx="1.5" fill="white" opacity="0.9"/>
                         </svg>
                     </div>
-                    <span style={{ color: '#fff', fontWeight: '600', fontSize: '15px' }}>NJT Events</span>
+                    <span style={{ color: '#fff', fontWeight: '600', fontSize: '15px' }}>FONSale</span>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
