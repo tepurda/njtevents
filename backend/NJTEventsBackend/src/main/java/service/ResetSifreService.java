@@ -111,12 +111,19 @@ public class ResetSifreService {
                 frontendUrl + "/reset-sifre?token=" + token, TRAJANJE_TOKENA.toMinutes());
     }
 
+    /**
+     * Proverava link bez menjanja šifre — frontend je poziva čim se otvori strana,
+     * da za iskorišćen ili istekao link odmah prikaže grešku umesto forme.
+     */
+    @Transactional(readOnly = true)
+    public void proveriToken(String token) {
+        vazeciToken(token);
+    }
+
     /** Postavlja novu šifru ako je token ispravan i nije istekao. Token se nakon upotrebe briše. */
     @Transactional
     public void resetujSifru(String token, String novaSifra) {
-        TokenZaResetSifre zapis = tokenRepository.findByTokenHash(hes(token))
-                .filter(t -> t.getIstice().isAfter(LocalDateTime.now(clock)))
-                .orElseThrow(() -> new ValidationException(PORUKA_NEVAZECI_LINK));
+        TokenZaResetSifre zapis = vazeciToken(token);
 
         String email = zapis.getEmail();
         String hesSifre = passwordEncoder.encode(novaSifra);
@@ -145,6 +152,12 @@ public class ResetSifreService {
         if (obrisano > 0) {
             log.info("Obrisano isteklih tokena za reset šifre: {}", obrisano);
         }
+    }
+
+    private TokenZaResetSifre vazeciToken(String token) {
+        return tokenRepository.findByTokenHash(hes(token))
+                .filter(t -> t.getIstice().isAfter(LocalDateTime.now(clock)))
+                .orElseThrow(() -> new ValidationException(PORUKA_NEVAZECI_LINK));
     }
 
     private Optional<String> pronadjiIme(String email) {

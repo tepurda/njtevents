@@ -89,6 +89,13 @@ public class AuthController {
                 "Ako nalog sa ovom adresom postoji, poslali smo link za promenu šifre. Proverite email (i spam folder)."));
     }
 
+    // GET /api/auth/reset-sifre/provera?token=... — 204 ako je link važeći, 400 ako je istekao/iskorišćen
+    @GetMapping("/reset-sifre/provera")
+    public ResponseEntity<Void> proveriLinkZaReset(@RequestParam String token) {
+        resetSifreService.proveriToken(token);
+        return ResponseEntity.noContent().build();
+    }
+
     // POST /api/auth/reset-sifre — postavlja novu šifru pomoću tokena iz linka
     @PostMapping("/reset-sifre")
     public ResponseEntity<Void> resetSifre(@Valid @RequestBody ResetSifreDTO dto) {

@@ -144,6 +144,29 @@ class ResetSifreServiceTest {
     }
 
     @Test
+    void proveriToken_vazeciToken_prolaziBezMenjanjaSifre() {
+        Korisnik k = korisnik();
+        String stariHes = k.getSifra();
+        when(tokenRepository.findByTokenHash(ResetSifreService.hes("abc")))
+                .thenReturn(Optional.of(new TokenZaResetSifre("h", "ana@example.com", SADA, SADA.plusMinutes(30))));
+
+        assertDoesNotThrow(() -> service.proveriToken("abc"));
+        assertEquals(stariHes, k.getSifra());
+        verify(tokenRepository, never()).obrisiZaEmail(any());
+    }
+
+    @Test
+    void proveriToken_istekaoIliIskoriscen_odbija() {
+        when(tokenRepository.findByTokenHash(ResetSifreService.hes("istekao")))
+                .thenReturn(Optional.of(new TokenZaResetSifre("h", "ana@example.com",
+                        SADA.minusMinutes(31), SADA.minusMinutes(1))));
+        when(tokenRepository.findByTokenHash(ResetSifreService.hes("iskoriscen"))).thenReturn(Optional.empty());
+
+        assertThrows(ValidationException.class, () -> service.proveriToken("istekao"));
+        assertThrows(ValidationException.class, () -> service.proveriToken("iskoriscen"));
+    }
+
+    @Test
     void resetujSifru_nepostojeciIliIskoriscenToken_odbija() {
         when(tokenRepository.findByTokenHash(any())).thenReturn(Optional.empty());
         assertThrows(ValidationException.class, () -> service.resetujSifru("abc", "novaSifra1"));

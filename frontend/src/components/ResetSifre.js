@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { resetujSifru } from '../services/api';
+import { proveriLinkZaReset, resetujSifru } from '../services/api';
 import { AuthLayout, Poruka, Polje, DugmeZaSlanje } from './AuthLayout';
 
 function ResetSifre() {
@@ -12,6 +12,23 @@ function ResetSifre() {
     const [potvrda, setPotvrda] = useState('');
     const [greska, setGreska] = useState('');
     const [ucitavanje, setUcitavanje] = useState(false);
+    // 'provera' → čeka odgovor servera; 'vazeci' → prikazuje formu; 'nevazeci' → link je istekao/iskorišćen
+    const [stanjeLinka, setStanjeLinka] = useState(token ? 'provera' : 'nevazeci');
+    const [porukaLinka, setPorukaLinka] = useState('Link za promenu šifre nije ispravan.');
+
+    useEffect(() => {
+        if (!token) return;
+        let aktivna = true;
+        proveriLinkZaReset(token)
+            .then(() => { if (aktivna) setStanjeLinka('vazeci'); })
+            .catch((error) => {
+                if (!aktivna) return;
+                setPorukaLinka(error.response?.data?.message
+                    || 'Provera linka nije uspela. Proverite da li je server pokrenut.');
+                setStanjeLinka('nevazeci');
+            });
+        return () => { aktivna = false; };
+    }, [token]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -36,10 +53,20 @@ function ResetSifre() {
         }
     };
 
-    if (!token) {
+    if (stanjeLinka === 'provera') {
+        return (
+            <AuthLayout naslov="Promena šifre" podnaslov="Provera linka...">
+                <div style={{ display: 'flex', justifyContent: 'center', padding: '8px 0' }}>
+                    <div className="spinner" style={{ borderColor: '#E2E8F0', borderTopColor: '#4ECBA0' }}/>
+                </div>
+            </AuthLayout>
+        );
+    }
+
+    if (stanjeLinka === 'nevazeci') {
         return (
             <AuthLayout naslov="Promena šifre" podnaslov="">
-                <Poruka tip="greska">Link za promenu šifre nije ispravan.</Poruka>
+                <Poruka tip="greska">{porukaLinka}</Poruka>
                 <div style={{ textAlign: 'center' }}>
                     <Link to="/zaboravljena-sifra" className="auth-link">Zatražite novi link</Link>
                 </div>

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { obrisiSesiju } from './sesija';
 
 const BASE_URL = 'http://localhost:8081/api';
 
@@ -26,7 +27,7 @@ api.interceptors.response.use(
     error => {
         const authZahtev = error.config?.url?.startsWith('/auth/');
         if (error.response?.status === 401 && !authZahtev) {
-            localStorage.clear();
+            obrisiSesiju();
             window.location.href = '/login?istekla=true';
         }
         return Promise.reject(error);
@@ -38,6 +39,8 @@ export const login = (email, sifra) =>
     api.post('/auth/login', { email, sifra });
 export const zatraziResetSifre = (email) =>
     api.post('/auth/zaboravljena-sifra', { email });
+export const proveriLinkZaReset = (token) =>
+    api.get('/auth/reset-sifre/provera', { params: { token } });
 export const resetujSifru = (token, novaSifra) =>
     api.post('/auth/reset-sifre', { token, novaSifra });
 
